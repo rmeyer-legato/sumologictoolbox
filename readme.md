@@ -74,7 +74,20 @@ The steps are as follows:
 To run sumotoolbox cd into the sumotoolbox directory and type:
 
     pipenv run python3 sumotoolbox.py
-    
+
+Build the Source
+=====================
+```sh
+pipenv install --python 3.8
+pipenv shell
+
+pip install pyinstaller=5.1
+pip install dateutils
+pip install backports.zoneinfo
+
+pyinstaller sumotoolbox_onefile_mac_arm.spec
+```
+
 Updating the Source
 ===================
 
