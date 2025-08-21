@@ -58,19 +58,23 @@ class ShowTextDialog(QtWidgets.QDialog):
 
     def search(self, search_text):
         self.textedit.textCursor().clearSelection()
+        # Use case-insensitive search
+        find_options = QtGui.QTextDocument.FindCaseSensitively
         if self.last_search == 'Up':
-            search_result = self.textedit.find(search_text)
+            search_result = self.textedit.find(search_text, ~find_options)
             if search_result:
                 self.last_search = 'Down'
             else:
-                search_result = self.textedit.find(search_text, QtGui.QTextDocument.FindBackward)
+                search_result = self.textedit.find(search_text, QtGui.QTextDocument.FindBackward | ~find_options)
                 self.last_search = 'Up'
 
     def search_down(self, search_text):
-        search_result = self.textedit.find(search_text)
+        # Use case-insensitive search
+        search_result = self.textedit.find(search_text, ~QtGui.QTextDocument.FindCaseSensitively)
 
     def search_up(self, search_text):
-        search_result = self.textedit.find(search_text, QtGui.QTextDocument.FindBackward)
+        # Use case-insensitive search
+        search_result = self.textedit.find(search_text, QtGui.QTextDocument.FindBackward | ~QtGui.QTextDocument.FindCaseSensitively)
 
 
 # functions that are shared by multiple tabs. These are mostly import/export functions that will be used by their own

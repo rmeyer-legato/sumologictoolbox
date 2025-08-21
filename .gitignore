@@ -8,6 +8,9 @@ sumotoolbox.ini
 #python files
 
 *.pyc
+.uv/
+uv.lock
+__pypackages__/
 
 
 # Windows image file caches

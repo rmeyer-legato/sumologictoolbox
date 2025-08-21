@@ -394,7 +394,40 @@
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_13"/>
+        <layout class="QHBoxLayout" name="horizontalLayout_13">
+         <item>
+          <widget class="QPushButton" name="pushButtonAddField">
+           <property name="font">
+            <font>
+             <family>Waree</family>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>Specify a field to add or modify for the targets.</string>
+           </property>
+           <property name="text">
+            <string>Add Update: Add/Modify Field</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonRemoveField">
+           <property name="font">
+            <font>
+             <family>Waree</family>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>Specify a field to remove from the targets.</string>
+           </property>
+           <property name="text">
+            <string>Add Update: Remove Field</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_7">

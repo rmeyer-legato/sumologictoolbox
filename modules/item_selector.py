@@ -144,7 +144,8 @@ class ItemSelector(QtWidgets.QWidget):
         for row in range(self.listWidget.count()):
             item = self.listWidget.item(row)
             if filter_text:
-                item.setHidden(not filter_text in item.text())
+                # Case-insensitive search
+                item.setHidden(not filter_text.lower() in item.text().lower())
             else:
                 item.setHidden(False)
 

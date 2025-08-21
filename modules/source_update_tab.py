@@ -10,6 +10,102 @@ from modules.multithreading import Worker, ProgressDialog
 class_name = 'source_update_tab'
 
 
+class AddFieldDialog(QtWidgets.QDialog):
+
+    def __init__(self):
+        super(AddFieldDialog, self).__init__()
+        self.setupUi(self)
+
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("AddField")
+        self.setWindowTitle('Add/Modify Field')
+
+        self.qbtnok = QtWidgets.QDialogButtonBox.Ok
+        self.qbtncancel = QtWidgets.QDialogButtonBox.Cancel
+
+        self.buttonBox = QtWidgets.QDialogButtonBox()
+        self.buttonBox.addButton(self.qbtnok)
+        self.buttonBox.addButton(self.qbtncancel)
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
+        self.labelFieldName = QtWidgets.QLabel(Dialog)
+        self.labelFieldName.setObjectName("FieldName")
+        self.labelFieldName.setText('Field Name:')
+        self.lineEditFieldName = QtWidgets.QLineEdit(Dialog)
+        self.lineEditFieldName.textChanged.connect(self.enable_ok_button)
+        self.layoutFieldName = QtWidgets.QHBoxLayout()
+        self.layoutFieldName.addWidget(self.labelFieldName)
+        self.layoutFieldName.addWidget(self.lineEditFieldName)
+
+        self.labelFieldValue = QtWidgets.QLabel(Dialog)
+        self.labelFieldValue.setObjectName("FieldValue")
+        self.labelFieldValue.setText('Field Value:')
+        self.lineEditFieldValue = QtWidgets.QLineEdit(Dialog)
+        self.lineEditFieldValue.textChanged.connect(self.enable_ok_button)
+        self.layoutFieldValue = QtWidgets.QHBoxLayout()
+        self.layoutFieldValue.addWidget(self.labelFieldValue)
+        self.layoutFieldValue.addWidget(self.lineEditFieldValue)
+
+        self.layout = QtWidgets.QVBoxLayout()
+        self.layout.addLayout(self.layoutFieldName)
+        self.layout.addLayout(self.layoutFieldValue)
+        self.layout.addWidget(self.buttonBox)
+        self.setLayout(self.layout)
+
+    def enable_ok_button(self):
+        if (len(self.lineEditFieldName.text()) > 0) and (len(self.lineEditFieldValue.text()) > 0):
+            self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(True)
+        else:
+            self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
+
+    def getresults(self):
+        results = {}
+        results['name'] = self.lineEditFieldName.text()
+        results['value'] = self.lineEditFieldValue.text()
+        return results
+
+
+class RemoveFieldDialog(QtWidgets.QDialog):
+
+    def __init__(self, potential_field_names_for_removal):
+        super(RemoveFieldDialog, self).__init__()
+        self.potential_field_names_for_removal = potential_field_names_for_removal
+        self.setupUi(self)
+
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("RemoveField")
+        self.setWindowTitle('Remove Field(s)')
+
+        QBtn = QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel
+        self.buttonBox = QtWidgets.QDialogButtonBox(QBtn)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
+        self.labelFieldName = QtWidgets.QLabel(Dialog)
+        self.labelFieldName.setObjectName("FieldName")
+        self.labelFieldName.setText('Choose Field(s) to remove:')
+        self.listWidget = QtWidgets.QListWidget(Dialog)
+        self.listWidget.setAlternatingRowColors(False)
+        self.listWidget.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        self.listWidget.setSortingEnabled(True)
+        self.layout = QtWidgets.QVBoxLayout()
+        self.layout.addWidget(self.labelFieldName)
+        self.layout.addWidget(self.listWidget)
+        self.layout.addWidget(self.buttonBox)
+        self.setLayout(self.layout)
+        for potential_field_name_for_removal in self.potential_field_names_for_removal:
+            self.listWidget.addItem(potential_field_name_for_removal)
+        self.listWidget.clearSelection()
+
+    def getresults(self):
+        results = []
+        for selected in self.listWidget.selectedItems():
+            results.append(selected.text())
+        return results
+
+
 class AddProcessingRuleDialog(QtWidgets.QDialog):
 
     def __init__(self):
@@ -165,8 +261,8 @@ class source_update_tab(QtWidgets.QWidget):
         self.pushButtonRemoveTargets.clicked.connect(self.remove_targets)
         self.pushButtonClearTargets.clicked.connect(self.listWidgetTargets.clear)
         self.pushButtonChangeSourceCategory.clicked.connect(self.change_source_category)
-        # self.pushButtonAddField.clicked.connect(self.add_field)
-        # self.pushButtonRemoveField.clicked.connect(self.remove_field)
+        self.pushButtonAddField.clicked.connect(self.add_field)
+        self.pushButtonRemoveField.clicked.connect(self.remove_field)
         self.pushButtonAddRule.clicked.connect(self.add_rule)
         self.pushButtonRemoveRule.clicked.connect(self.remove_rule)
         self.pushButtonRemoveUpdate.clicked.connect(self.remove_update)
@@ -228,6 +324,8 @@ class source_update_tab(QtWidgets.QWidget):
             self.collectors = []
             self.addrules = []
             self.removerules = []
+            self.addfields = []
+            self.removefields = []
             self.undolist = []
             self.new_source_category = None
             self.lineEditSearchAvailableSources.clear()
@@ -240,7 +338,8 @@ class source_update_tab(QtWidgets.QWidget):
             item = ListWidget.item(row)
             widget = ListWidget.itemWidget(item)
             if filtertext:
-                item.setHidden(not filtertext in item.text())
+                # Case-insensitive search
+                item.setHidden(not filtertext.lower() in item.text().lower())
             else:
                 item.setHidden(False)
 
@@ -391,10 +490,42 @@ class source_update_tab(QtWidgets.QWidget):
 
 
     def add_field(self):
-        pass
+        logger.info("[Source Update] Adding new field to update list.")
+        dialog = AddFieldDialog()
+        dialog.exec()
+        dialog.show()
+
+        if str(dialog.result()) == '1':
+            field = dialog.getresults()
+            field_label = field['name'] + '=' + field['value']
+            if field_label not in self.get_item_names_from_listWidget(self.listWidgetUpdates):
+                self.addfields.append(field)
+                item = QtWidgets.QListWidgetItem(self.icons['plus'], field_label)
+                item.itemtype = 'NewField'
+                self.listWidgetUpdates.addItem(item)  # populate the list widget in the GUI
+            else:
+                self.mainwindow.errorbox('Field already in update list. Field not added.')
+        dialog.close()
 
     def remove_field(self):
-        pass
+        logger.info("[Source Update] Adding remove field to update list.")
+        field_name_list = []
+        fields = self.get_field_list_from_listWidgetTarget()
+        for field_name in fields:
+            field_name_list.append(field_name)
+        field_name_list = list(set(field_name_list))
+        dialog = RemoveFieldDialog(field_name_list)
+        dialog.exec()
+        dialog.show()
+
+        if str(dialog.result()) == '1':
+            field_names_to_remove = dialog.getresults()
+            for field_name_to_remove in field_names_to_remove:
+                self.removefields.append(field_name_to_remove)
+                item = QtWidgets.QListWidgetItem(self.icons['minus'], field_name_to_remove)
+                item.itemtype = 'RemoveField'
+                self.listWidgetUpdates.addItem(item)  # populate the list widget in the GUI
+        dialog.close()
 
     def add_rule(self):
         logger.info("[Source Update] Adding new rule to update list.")
@@ -448,12 +579,23 @@ class source_update_tab(QtWidgets.QWidget):
                     for i in range(len(self.addrules)):
                         if self.addrules[i]['name'] == item.text():
                             del self.addrules[i]
+                            break
+                elif item.itemtype == 'NewField':
+                    name_value = item.text().split('=', 1)
+                    for i in range(len(self.addfields)):
+                        if self.addfields[i]['name'] == name_value[0]:
+                            del self.addfields[i]
+                            break
+                elif item.itemtype == 'RemoveField':
+                    self.removefields.remove(item.text())
 
     def clear_all_updates(self):
         logger.info("[Source Update] Clearing all updates from update list.")
         self.listWidgetUpdates.clear()
         self.addrules = []
         self.removerules = []
+        self.addfields = []
+        self.removefields = []
         self.new_source_category = None
     
     def apply_update(self, collector_id, source_id, overwrite_rules, creds):
@@ -483,6 +625,26 @@ class source_update_tab(QtWidgets.QWidget):
                 # Revisit this when filter support is added for filters in the future
                 if 'filters' in current_source['source']:
                     current_source['source']['filters'].append(addrule)
+
+            # Add fields
+            for addfield in self.addfields:
+                if 'fields' in current_source['source']:
+                    current_source['source']['fields'][addfield['name']] = addfield['value']
+                elif 'config' in current_source['source'] and 'fields' in current_source['source']['config']:
+                    current_source['source']['config']['fields'][addfield['name']] = addfield['value']
+                elif 'config' in current_source['source']:
+                    # Initialize fields if not present
+                    current_source['source']['config']['fields'] = {addfield['name']: addfield['value']}
+                else:
+                    # Initialize fields if not present
+                    current_source['source']['fields'] = {addfield['name']: addfield['value']}
+                    
+            # Remove fields
+            for removefield in self.removefields:
+                if 'fields' in current_source['source'] and removefield in current_source['source']['fields']:
+                    del current_source['source']['fields'][removefield]
+                elif 'config' in current_source['source'] and 'fields' in current_source['source']['config'] and removefield in current_source['source']['config']['fields']:
+                    del current_source['source']['config']['fields'][removefield]
 
             if self.new_source_category:
                 if 'name' in current_source['source']:
@@ -528,7 +690,7 @@ class source_update_tab(QtWidgets.QWidget):
 
         target_source_ids = self.get_source_id_list_from_listWidgetTarget()
         if len(target_source_ids) > 0:
-            if (len(self.addrules) > 0) or (len(self.removerules) > 0) or self.new_source_category:
+            if (len(self.addrules) > 0) or (len(self.removerules) > 0) or (len(self.addfields) > 0) or (len(self.removefields) > 0) or self.new_source_category:
                 result = QtWidgets.QMessageBox.question(self,
                                                         'Continue?',
                                                         'Are you sure you want to apply these updates?',
@@ -646,6 +808,22 @@ class source_update_tab(QtWidgets.QWidget):
                                 for filter in source['filters']:
                                     filter_list.append(filter)
         return filter_list
+        
+    def get_field_list_from_listWidgetTarget(self):
+        field_list = {}
+        source_id_list = self.get_source_id_list_from_listWidgetTarget()
+        for source_id in source_id_list:
+            for collector in self.collectors:
+                if collector['id'] == source_id['collector_id']:
+                    for source in collector['sources']:
+                        if source['id'] == source_id['source_id']:
+                            if 'fields' in source:
+                                for key, value in source['fields'].items():
+                                    field_list[key] = value
+                            elif 'config' in source and 'fields' in source['config']:
+                                for key, value in source['config']['fields'].items():
+                                    field_list[key] = value
+        return field_list
 
     def load_icons(self):
         logger.info("[Source Update] Loading Icons")

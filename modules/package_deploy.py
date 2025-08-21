@@ -93,7 +93,8 @@ class PackageDeploy(QtWidgets.QDialog):
         for row in range(self.listWidgetPresets.count()):
             item = self.listWidgetPresets.item(row)
             if filter_text:
-                item.setHidden(not filter_text in item.text())
+                # Case-insensitive search
+                item.setHidden(not filter_text.lower() in item.text().lower())
             else:
                 item.setHidden(False)
 

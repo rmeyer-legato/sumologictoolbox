@@ -1,5 +1,11 @@
 Changelog for SumoToolBox
 
+06-12-2024 0.11.2
+
+*   [Source Update] Added field manipulation functionality to allow bulk adding/removing fields for sources.
+*   [General] Implemented case-insensitive search across the application for better user experience.
+*   [Source Update] Fixed issue with field updates not being recognized in the apply_updates method.
+
 10-18-2021 0.11.1
 
 *   [General] Fixed bugs preventing the addition of new presets.
