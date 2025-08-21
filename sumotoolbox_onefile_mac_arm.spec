@@ -5,7 +5,6 @@ import pkgutil
 
 PyInstaller.config.CONF['distpath'] = "./dist/mac"
 dateutil_path = os.path.dirname(pkgutil.get_loader("dateutil").path)
-backports_path = os.path.dirname(pkgutil.get_loader("backports").path)
 
 block_cipher = None
 
@@ -14,8 +13,7 @@ a = Analysis(['sumotoolbox.py'],
              datas=[( 'data/*', 'data' ),
                     ( 'qtmodern', 'qtmodern' ),
                     ( 'modules/*', 'modules' ),
-                    (dateutil_path, 'dateutil'),
-                    (backports_path, 'backports')],
+                    (dateutil_path, 'dateutil')],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],

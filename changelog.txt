@@ -1,12 +1,13 @@
 Changelog for SumoToolBox
 
-06-12-2024 0.11.2
+08-21-2025 0.11.2
 
 *   [Source Update] Added field manipulation functionality to allow bulk adding/removing fields for sources.
 *   [General] Implemented case-insensitive search across the application for better user experience.
 *   [Source Update] Fixed issue with field updates not being recognized in the apply_updates method.
 *   [Build] Added support for building on Apple Silicon (Mac ARM) with new spec file.
 *   [Build] Added build instructions to the README.
+*   [Build] Added Python 3.12 compatible Mac ARM spec file.
 
 10-18-2021 0.11.1
 
