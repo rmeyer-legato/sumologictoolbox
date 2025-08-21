@@ -137,7 +137,7 @@ class BaseTab(QtWidgets.QWidget):
         for row in range(list_widget.count()):
             item = list_widget.item(row)
             if filter_text:
-                item.setHidden(not filter_text in item.text())
+                item.setHidden(not filter_text.lower() in item.text().lower())
             else:
                 item.setHidden(False)
 
