@@ -11,6 +11,12 @@ sumotoolbox.ini
 .uv/
 uv.lock
 __pypackages__/
+.python-version
+build/
+*.spec.backup
+sumotoolbox_mac
+pyproject.toml
+requirements.txt
 
 
 # Windows image file caches
