@@ -17,6 +17,7 @@ build/
 sumotoolbox_mac
 pyproject.toml
 requirements.txt
+main.py
 
 
 # Windows image file caches
