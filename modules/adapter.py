@@ -924,7 +924,14 @@ class SumoSourceAdapter(SumoAdapter):
         self.sumo = self.sumo_from_creds(creds, use_session=False)
 
     def list(self, params=None):
-        collector_id = params['collector_id']
+        collector_id = None
+        if params:
+            collector_id = params.get('collector_id')
+
+        if collector_id is None:
+            self.logger.warning('[Sources] Missing collector_id when listing sources; returning empty list')
+            return []
+
         return self.sumo.get_sources_sync(collector_id)
 
     def get(self, item_name, item_id, params=None):
@@ -969,5 +976,4 @@ class SumoSourceAdapter(SumoAdapter):
                     'params': params}
         except Exception as e:
             raise e
-
 

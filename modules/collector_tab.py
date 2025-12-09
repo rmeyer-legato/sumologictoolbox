@@ -366,22 +366,39 @@ class CollectorTab(BaseTab):
         logger.debug("[Collectors] Updating Source List")
         source_list_widget.clear()  # clear the list first since it might already be populated
         collectors = collector_list_widget.selectedItems()
-        # if we have multiple collectors selected or none selected then don't try to populate the sources list
-        if adapter.is_sumo_adapter() and ((len(collectors) > 1) or (len(collectors) < 1)):
-            return
-        else:
-            # populate the list of sources
-            if adapter.is_sumo_adapter() and hasattr(collectors[0], 'id'):  # there won't be an ID if it's not from a sumo adapter (i.e. if it comes from a file)
-                collector_name = str(collectors[0].text())
-                params = {'collector_id': collectors[0].id}
-                merged_params = {**params, **source_list_widget.params}
-                sources = adapter.list(params=merged_params)
-                source_list_widget.collector_id = collectors[0].id
-                self.update_source_listwidget(source_list_widget, sources)
-            else:
 
-                sources = adapter.list(params=source_list_widget.params)
-                self.update_source_listwidget(source_list_widget, sources)
+        # Handle Sumo adapters first; they require an explicit collector selection
+        if adapter.is_sumo_adapter():
+            if len(collectors) != 1:
+                source_list_widget.collector_id = None
+                source_list_widget.clear()
+                return
+
+            selected_collector = collectors[0]
+            collector_id = getattr(selected_collector, 'id', None)
+
+            if collector_id is None and hasattr(selected_collector, 'details'):
+                details = selected_collector.details
+                if isinstance(details, dict):
+                    collector_id = details.get('id')
+                    if collector_id is None:
+                        collector = details.get('collector') if isinstance(details.get('collector'), dict) else None
+                        if collector:
+                            collector_id = collector.get('id')
+
+            if collector_id is None:
+                logger.warning('[Collectors] Selected collector is missing an id; skipping source refresh')
+                source_list_widget.collector_id = None
+                source_list_widget.clear()
+                return
+
+            merged_params = {**source_list_widget.params, 'collector_id': collector_id}
+            sources = adapter.list(params=merged_params)
+            source_list_widget.collector_id = collector_id
+            self.update_source_listwidget(source_list_widget, sources)
+        else:
+            sources = adapter.list(params=source_list_widget.params)
+            self.update_source_listwidget(source_list_widget, sources)
 
     def update_source_listwidget(self, source_list_widget, sources):
         source_list_widget.clear()
