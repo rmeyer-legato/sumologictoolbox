@@ -11,25 +11,26 @@ class_name = 'UsersTab'
 
 # Maps lowercased/stripped header variants → canonical column name
 _HEADER_ALIASES = {
-    'firstname':    'firstName',
-    'first_name':   'firstName',
-    'first name':   'firstName',
-    'first':        'firstName',
-    'lastname':     'lastName',
-    'last_name':    'lastName',
-    'last name':    'lastName',
-    'last':         'lastName',
-    'surname':      'lastName',
-    'email':        'email',
-    'email_address':'email',
-    'email address':'email',
-    'e-mail':       'email',
-    'role':         'role',
-    'roles':        'role',
-    'role_name':    'role',
+    'firstname':     'firstName',
+    'first_name':    'firstName',
+    'first name':    'firstName',
+    'first':         'firstName',
+    'lastname':      'lastName',
+    'last_name':     'lastName',
+    'last name':     'lastName',
+    'last':          'lastName',
+    'surname':       'lastName',
+    'email':         'email',
+    'email_address': 'email',
+    'email address': 'email',
+    'e-mail':        'email',
+    'role':          'role',
+    'roles':         'role',
+    'role_name':     'role',
 }
 
 _EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+_CSV_FIELDS = ['firstName', 'lastName', 'email', 'role']
 
 
 class UsersTab(StandardTab):
@@ -46,11 +47,11 @@ class UsersTab(StandardTab):
         self.verticalLayoutCenterButton.insertWidget(3, self.checkBoxIncludeRoles)
         self.checkBoxIncludeRoles.show()
 
-        # "Import CSV" buttons inserted before the spacer in each bottom button bar
-        self.pushButtonImportCSVLeft = QtWidgets.QPushButton('Import CSV')
-        self.pushButtonImportCSVRight = QtWidgets.QPushButton('Import CSV')
-        self.horizontalLayoutBottomButtonsLeft.insertWidget(3, self.pushButtonImportCSVLeft)
-        self.horizontalLayoutBottomButtonsRight.insertWidget(3, self.pushButtonImportCSVRight)
+        # "CSV ▾" dropdown buttons inserted before the spacer in each bottom button bar
+        self.toolButtonCSVLeft = self._make_csv_button('left')
+        self.toolButtonCSVRight = self._make_csv_button('right')
+        self.horizontalLayoutBottomButtonsLeft.insertWidget(3, self.toolButtonCSVLeft)
+        self.horizontalLayoutBottomButtonsRight.insertWidget(3, self.toolButtonCSVRight)
 
         self.listWidgetLeft.params = {'extension': '.sumouser.json'}
         self.listWidgetRight.params = {'extension': '.sumouser.json'}
@@ -77,15 +78,30 @@ class UsersTab(StandardTab):
              'include_roles': self.checkBoxIncludeRoles.isChecked()}
         ))
 
-        self.pushButtonImportCSVLeft.clicked.connect(lambda: self.import_csv_users(
-            self.listWidgetLeft,
-            self.left_adapter
-        ))
-
-        self.pushButtonImportCSVRight.clicked.connect(lambda: self.import_csv_users(
-            self.listWidgetRight,
-            self.right_adapter
-        ))
+    def _make_csv_button(self, side):
+        btn = QtWidgets.QToolButton()
+        btn.setText('CSV ▾')
+        btn.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+        btn.setFont(self.pushButtonDeleteLeft.font())
+        btn.setSizePolicy(
+            QtWidgets.QSizePolicy.Minimum,
+            QtWidgets.QSizePolicy.Fixed
+        )
+        menu = QtWidgets.QMenu()
+        if side == 'left':
+            menu.addAction('Export CSV', lambda: self.export_csv_users(
+                self.listWidgetLeft, self.left_adapter))
+            menu.addAction('Import CSV', lambda: self.import_csv_users(
+                self.listWidgetLeft, self.left_adapter))
+        else:
+            menu.addAction('Export CSV', lambda: self.export_csv_users(
+                self.listWidgetRight, self.right_adapter))
+            menu.addAction('Import CSV', lambda: self.import_csv_users(
+                self.listWidgetRight, self.right_adapter))
+        menu.addSeparator()
+        menu.addAction('Download Template', self.download_csv_template)
+        btn.setMenu(menu)
+        return btn
 
     def reset_stateful_objects(self, side='both'):
         super(UsersTab, self).reset_stateful_objects(side=side)
@@ -93,17 +109,93 @@ class UsersTab(StandardTab):
             left_creds = self.mainwindow.get_current_creds('left')
             if ':' not in left_creds['service']:
                 self.left_adapter = SumoUserAdapter(left_creds, 'left', self.mainwindow)
-                self.pushButtonImportCSVLeft.setEnabled(True)
+                self.toolButtonCSVLeft.setEnabled(True)
             else:
-                self.pushButtonImportCSVLeft.setEnabled(False)
+                self.toolButtonCSVLeft.setEnabled(False)
 
         if self.right:
             right_creds = self.mainwindow.get_current_creds('right')
             if ':' not in right_creds['service']:
                 self.right_adapter = SumoUserAdapter(right_creds, 'right', self.mainwindow)
-                self.pushButtonImportCSVRight.setEnabled(True)
+                self.toolButtonCSVRight.setEnabled(True)
             else:
-                self.pushButtonImportCSVRight.setEnabled(False)
+                self.toolButtonCSVRight.setEnabled(False)
+
+    # ------------------------------------------------------------------
+    # CSV export
+    # ------------------------------------------------------------------
+
+    def export_csv_users(self, list_widget, adapter):
+        if not adapter.is_configured():
+            self.mainwindow.errorbox('Please configure credentials before exporting.')
+            return
+
+        try:
+            users = adapter.sumo.get_users_sync()
+        except Exception as e:
+            self.mainwindow.errorbox(f'Failed to fetch users:\n\n{e}')
+            return
+
+        if not users:
+            self.mainwindow.errorbox('No users found.')
+            return
+
+        try:
+            roles = adapter.sumo.get_roles_sync()
+        except Exception as e:
+            self.mainwindow.errorbox(f'Failed to fetch roles:\n\n{e}')
+            return
+
+        role_id_map = {r['id']: r['name'] for r in roles}
+
+        file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
+            self, 'Export Users to CSV', 'users.csv', 'CSV Files (*.csv);;All Files (*)'
+        )
+        if not file_path:
+            return
+
+        try:
+            with open(file_path, 'w', newline='', encoding='utf-8-sig') as f:
+                writer = csv.DictWriter(f, fieldnames=_CSV_FIELDS)
+                writer.writeheader()
+                for user in users:
+                    role_names = [role_id_map.get(rid, rid) for rid in user.get('roleIds', [])]
+                    writer.writerow({
+                        'firstName': user.get('firstName', ''),
+                        'lastName':  user.get('lastName', ''),
+                        'email':     user.get('email', ''),
+                        'role':      '; '.join(role_names),
+                    })
+        except Exception as e:
+            self.mainwindow.errorbox(f'Failed to write CSV:\n\n{e}')
+            return
+
+        QtWidgets.QMessageBox.information(
+            self, 'Export Complete', f'{len(users)} user(s) exported to:\n{file_path}'
+        )
+
+    # ------------------------------------------------------------------
+    # CSV template
+    # ------------------------------------------------------------------
+
+    def download_csv_template(self):
+        file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
+            self, 'Save CSV Template', 'users_template.csv', 'CSV Files (*.csv);;All Files (*)'
+        )
+        if not file_path:
+            return
+
+        try:
+            with open(file_path, 'w', newline='', encoding='utf-8-sig') as f:
+                writer = csv.DictWriter(f, fieldnames=_CSV_FIELDS)
+                writer.writeheader()
+        except Exception as e:
+            self.mainwindow.errorbox(f'Failed to write template:\n\n{e}')
+            return
+
+        QtWidgets.QMessageBox.information(
+            self, 'Template Saved', f'Template saved to:\n{file_path}'
+        )
 
     # ------------------------------------------------------------------
     # CSV import
@@ -120,7 +212,6 @@ class UsersTab(StandardTab):
         if not file_path:
             return
 
-        # --- parse ---
         # utf-8-sig strips the BOM that Excel adds to UTF-8 CSVs
         try:
             with open(file_path, newline='', encoding='utf-8-sig') as f:
@@ -184,9 +275,9 @@ class UsersTab(StandardTab):
         warnings = []
 
         for i, row in enumerate(rows, start=2):  # row 1 is the header
-            first = row.get('firstName', '').strip()
-            last = row.get('lastName', '').strip()
-            email = row.get('email', '').strip()
+            first     = row.get('firstName', '').strip()
+            last      = row.get('lastName', '').strip()
+            email     = row.get('email', '').strip()
             role_name = row.get('role', '').strip()
 
             if not (first and last and email):
@@ -274,7 +365,6 @@ class UsersTab(StandardTab):
         self._csv_completed += 1
         if self._csv_completed < self._csv_num_threads:
             return
-        # all workers done — refresh list and show summary
         self.update_item_list(self._csv_list_widget, self._csv_adapter)
         msg = f'{self._csv_successes} user(s) created successfully.'
         if self._csv_failures:
