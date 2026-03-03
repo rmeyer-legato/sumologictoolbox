@@ -672,7 +672,7 @@ class source_update_tab(QtWidgets.QWidget):
             self.mainwindow.threadpool.clear()
             logger.info(result['exception'])
             self.mainwindow.errorbox('Something went wrong, rolling back changes:\n\n' + result['exception'])
-            self.undo_updates(result['id'], result['key'], result['url'])
+            self.undo_updates(result['creds'])
         if self.num_successful_updates == self.num_source_updates:
             self.mainwindow.infobox('Your update completed successfully.')
             self.pushButtonUndoChanges.setEnabled(True)
@@ -696,7 +696,7 @@ class source_update_tab(QtWidgets.QWidget):
                                                         'Are you sure you want to apply these updates?',
                                                         QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                                                         QtWidgets.QMessageBox.No)
-                if result:
+                if result == QtWidgets.QMessageBox.Yes:
                     self.undolist = []
                     try:
                         self.num_successful_updates = 0
