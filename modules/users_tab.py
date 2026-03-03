@@ -5,6 +5,7 @@ from qtpy import QtWidgets
 from modules.adapter import SumoUserAdapter
 from modules.tab_base_class import StandardTab
 from modules.multithreading import Worker, ProgressDialog
+from modules.shared import exception_and_error_handling
 from logzero import logger
 
 class_name = 'UsersTab'
@@ -31,6 +32,71 @@ _HEADER_ALIASES = {
 
 _EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
 _CSV_FIELDS = ['firstName', 'lastName', 'email', 'role']
+
+
+class _DeleteUserDialog(QtWidgets.QDialog):
+    """Confirms deletion and asks what to do with the deleted users' content."""
+
+    def __init__(self, user_names, transfer_candidates, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle('Delete User(s)')
+        self.setMinimumWidth(480)
+
+        layout = QtWidgets.QVBoxLayout(self)
+
+        names_text = '\n'.join(f'  \u2022 {n}' for n in user_names)
+        label = QtWidgets.QLabel(
+            f'You are about to permanently delete the following user(s):\n\n'
+            f'{names_text}\n\n'
+            f'This cannot be undone. Type DELETE to confirm:'
+        )
+        label.setWordWrap(True)
+        layout.addWidget(label)
+
+        self._confirm_edit = QtWidgets.QLineEdit()
+        layout.addWidget(self._confirm_edit)
+
+        group = QtWidgets.QGroupBox('What should happen to content created by these user(s)?')
+        group_layout = QtWidgets.QVBoxLayout(group)
+
+        self._radio_transfer = QtWidgets.QRadioButton('Transfer content to:')
+        self._radio_transfer.setChecked(bool(transfer_candidates))
+        group_layout.addWidget(self._radio_transfer)
+
+        self._combo_transfer = QtWidgets.QComboBox()
+        for u in sorted(transfer_candidates, key=lambda x: x['name']):
+            self._combo_transfer.addItem(u['name'], u['id'])
+        self._combo_transfer.setEnabled(bool(transfer_candidates))
+        group_layout.addWidget(self._combo_transfer)
+
+        self._radio_delete = QtWidgets.QRadioButton('Delete all content created by these user(s)')
+        self._radio_delete.setChecked(not transfer_candidates)
+        group_layout.addWidget(self._radio_delete)
+
+        layout.addWidget(group)
+
+        buttons = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel
+        )
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+        self._radio_transfer.toggled.connect(self._combo_transfer.setEnabled)
+
+        if not transfer_candidates:
+            self._radio_transfer.setEnabled(False)
+
+    def is_confirmed(self):
+        return self._confirm_edit.text().strip() == 'DELETE'
+
+    def transfer_to_id(self):
+        if self._radio_transfer.isChecked():
+            return self._combo_transfer.currentData()
+        return None
+
+    def delete_content(self):
+        return self._radio_delete.isChecked()
 
 
 class UsersTab(StandardTab):
@@ -77,6 +143,61 @@ class UsersTab(StandardTab):
             {'replace_source_categories': False,
              'include_roles': self.checkBoxIncludeRoles.isChecked()}
         ))
+
+    @exception_and_error_handling
+    def delete_item(self, list_widget, adapter):
+        selected_items = list_widget.selectedItems()
+        if not selected_items:
+            return
+
+        # Fetch all users to populate the transfer-to dropdown, minus those being deleted
+        try:
+            all_users = adapter.sumo.get_users_sync()
+        except Exception as e:
+            self.mainwindow.errorbox(f'Failed to fetch users:\n\n{e}')
+            return
+
+        selected_ids = {item.details['id'] for item in selected_items}
+        transfer_candidates = [
+            {'id': u['id'], 'name': f"{u['firstName']} {u['lastName']}"}
+            for u in all_users if u['id'] not in selected_ids
+        ]
+
+        user_names = [item.text() for item in selected_items]
+        dialog = _DeleteUserDialog(user_names, transfer_candidates, parent=self)
+
+        if dialog.exec() != QtWidgets.QDialog.Accepted:
+            return
+
+        if not dialog.is_confirmed():
+            self.mainwindow.errorbox('Deletion cancelled — you must type DELETE to confirm.')
+            return
+
+        self.num_threads = len(selected_items)
+        self.num_successful_threads = 0
+        self.progress = ProgressDialog(
+            'Deleting users...', 0, self.num_threads,
+            self.mainwindow.threadpool, self.mainwindow
+        )
+        self.workers = []
+        params = {
+            'destination_list_widget': list_widget,
+            'destination_adapter': adapter,
+            'mode': list_widget.mode,
+            'transferTo': dialog.transfer_to_id(),
+            'deleteContent': dialog.delete_content(),
+        }
+
+        for index, selected_item in enumerate(selected_items):
+            self.workers.append(Worker(
+                adapter.delete,
+                selected_item.details['name'],
+                selected_item.details.get('id'),
+                params=params
+            ))
+            self.workers[index].signals.finished.connect(self.progress.increment)
+            self.workers[index].signals.result.connect(self.merge_results_update_target)
+            self.mainwindow.threadpool.start(self.workers[index])
 
     def _make_csv_button(self, side):
         btn = QtWidgets.QToolButton()

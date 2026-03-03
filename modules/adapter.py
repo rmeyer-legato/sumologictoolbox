@@ -503,7 +503,9 @@ class SumoUserAdapter(SumoAdapter):
 
     def delete(self, item_name, item_id, params=None):
         try:
-            result = self.sumo.delete_user(item_id)
+            transfer_to = params.get('transferTo') if params else None
+            delete_content = params.get('deleteContent', False) if params else False
+            result = self.sumo.delete_user(item_id, transferTo=transfer_to, deleteContent=delete_content)
             return {'status': 'SUCCESS',
                     'result': result,
                     'adapter': self,

@@ -758,8 +758,10 @@ class SumoLogic(object):
         r = self.update_user(user_id, data)
         return r
 
-    def delete_user(self, user_id, transferTo=None):
-        if transferTo:
+    def delete_user(self, user_id, transferTo=None, deleteContent=False):
+        if deleteContent:
+            params = {'deleteContent': 'true'}
+        elif transferTo:
             params = {'transferTo': str(transferTo)}
         else:
             params = None
