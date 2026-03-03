@@ -8,7 +8,7 @@ class_name = 'RulesTab'
 class RulesTab(StandardTab):
 
     def __init__(self, mainwindow):
-        super(RulesTab, self).__init__(mainwindow)
+        super().__init__(mainwindow)
         self.tab_name = 'Rules'
         self.cred_usage = 'both'
         self.listWidgetLeft.params = {'extension': '.sumorule.json',
@@ -71,7 +71,7 @@ class RulesTab(StandardTab):
     #     self.update_item_list(list_widget, adapter, path_label=path_label)
 
     def reset_stateful_objects(self, side='both'):
-        super(RulesTab, self).reset_stateful_objects(side=side)
+        super().reset_stateful_objects(side=side)
 
         if self.left:
             # self.QRadioButtonLeftAllRules.setEnabled(False)

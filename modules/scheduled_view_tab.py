@@ -8,7 +8,7 @@ class_name = 'ScheduledViewTab'
 class ScheduledViewTab(StandardTab):
 
     def __init__(self, mainwindow):
-        super(ScheduledViewTab, self).__init__(mainwindow, copy_override=True)
+        super().__init__(mainwindow, copy_override=True)
         self.tab_name = 'Scheduled Views'
         self.cred_usage = 'both'
         self.useCurrentDate = QtWidgets.QCheckBox()
@@ -41,7 +41,7 @@ class ScheduledViewTab(StandardTab):
 
 
     def reset_stateful_objects(self, side='both'):
-        super(ScheduledViewTab, self).reset_stateful_objects(side=side)
+        super().reset_stateful_objects(side=side)
         if self.left:
             left_creds = self.mainwindow.get_current_creds('left')
             if ':' not in left_creds['service']:

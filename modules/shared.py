@@ -9,7 +9,7 @@ import sys
 class ShowTextDialog(QtWidgets.QDialog):
 
     def __init__(self, title, text, base_dir):
-        super(ShowTextDialog, self).__init__()
+        super().__init__()
         self.title = title
         self.text = text
         self.setMinimumSize(600, 600)

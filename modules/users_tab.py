@@ -102,7 +102,7 @@ class _DeleteUserDialog(QtWidgets.QDialog):
 class UsersTab(StandardTab):
 
     def __init__(self, mainwindow):
-        super(UsersTab, self).__init__(mainwindow)
+        super().__init__(mainwindow)
         self.tab_name = 'Users'
         self.cred_usage = 'both'
 
@@ -225,7 +225,7 @@ class UsersTab(StandardTab):
         return btn
 
     def reset_stateful_objects(self, side='both'):
-        super(UsersTab, self).reset_stateful_objects(side=side)
+        super().reset_stateful_objects(side=side)
         if self.left:
             left_creds = self.mainwindow.get_current_creds('left')
             if ':' not in left_creds['service']:

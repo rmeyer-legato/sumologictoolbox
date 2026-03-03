@@ -14,7 +14,7 @@ class_name = 'baseTab'
 class FindReplaceCopyDialog(QtWidgets.QDialog):
 
     def __init__(self, fromcategories, tocategories, parent=None):
-        super(FindReplaceCopyDialog, self).__init__(parent)
+        super().__init__(parent)
         self.objectlist = []
         self.setup_ui(self, fromcategories, tocategories)
 
@@ -97,7 +97,7 @@ class FindReplaceCopyDialog(QtWidgets.QDialog):
 class BaseTab(QtWidgets.QWidget):
 
     def __init__(self, mainwindow):
-        super(BaseTab, self).__init__()
+        super().__init__()
         self.mainwindow = mainwindow
         self.tab_name = 'Base'
         self.cred_usage = 'both'
@@ -525,7 +525,7 @@ If you are absolutely sure, type "DELETE" in the box below.
 class StandardTab(BaseTab):
 
     def __init__(self, mainwindow, copy_override=False):
-        super(StandardTab, self).__init__(mainwindow)
+        super().__init__(mainwindow)
         standard_tab_ui = os.path.join(self.mainwindow.basedir, 'data/standard_tab.ui')
         uic.loadUi(standard_tab_ui, self)
         self.listWidgetLeft.filter = self.lineEditSearchLeft
@@ -630,7 +630,7 @@ class StandardTab(BaseTab):
         list_widget.filter.clear()
 
     def reset_stateful_objects(self, side='both'):
-        super(StandardTab, self).reset_stateful_objects(side=side)
+        super().reset_stateful_objects(side=side)
         if self.left:
             self.listWidgetLeft.clear()
             self.listWidgetLeft.currentcontent = {}

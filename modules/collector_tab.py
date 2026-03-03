@@ -15,7 +15,7 @@ class_name = 'CollectorTab'
 class CollectorTab(BaseTab):
 
     def __init__(self, mainwindow):
-        super(CollectorTab, self).__init__(mainwindow)
+        super().__init__(mainwindow)
         self.tab_name = 'Collectors'
         self.cred_usage = 'both'
         collector_ui = os.path.join(self.mainwindow.basedir, 'data/collector.ui')
@@ -214,7 +214,7 @@ class CollectorTab(BaseTab):
         ))
 
     def reset_stateful_objects(self, side='both'):
-        super(CollectorTab, self).reset_stateful_objects(side=side)
+        super().reset_stateful_objects(side=side)
         if self.left:
             self.listWidgetCollectorsLeft.collectors = []
             self.listWidgetCollectorsLeft.update = False
@@ -273,7 +273,7 @@ class CollectorTab(BaseTab):
                 self.right_source_adapter = SumoSourceAdapter(self.right_creds, 'right', self.mainwindow)
 
     def load_icons(self):
-        super(CollectorTab, self).load_icons()
+        super().load_icons()
         iconpath = str(pathlib.Path(self.mainwindow.basedir + '/data/hosted_collector.svg'))
         self.icons['Hosted'] = QtGui.QIcon(iconpath)
         iconpath = str(pathlib.Path(self.mainwindow.basedir + '/data/installed_collector.svg'))

@@ -6,7 +6,7 @@ class SumoCustomInsightAdapter(SumoAdapter):
     from modules.shared import import_custom_insight, export_custom_insight
 
     def __init__(self, creds, side, mainwindow):
-        super(SumoCustomInsightAdapter, self).__init__(creds, side, mainwindow)
+        super().__init__(creds, side, mainwindow)
 
     def list(self, params=None):
         return self.sumo.get_custom_insights_sync()
@@ -60,7 +60,7 @@ class SumoRuleAdapter(SumoAdapter):
     from modules.shared import import_rule, export_rule
 
     def __init__(self, creds, side, mainwindow):
-        super(SumoRuleAdapter, self).__init__(creds, side, mainwindow)
+        super().__init__(creds, side, mainwindow)
 
     def list(self,  params=None):
         if 'query' in params:
@@ -111,7 +111,7 @@ class SumoLogMappingAdapter(SumoAdapter):
     from modules.shared import import_log_mapping, export_log_mapping
 
     def __init__(self, creds, side, mainwindow):
-        super(SumoLogMappingAdapter, self).__init__(creds, side, mainwindow)
+        super().__init__(creds, side, mainwindow)
 
     def list(self,  params=None):
         if 'query' in params:

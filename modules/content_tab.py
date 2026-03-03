@@ -11,7 +11,7 @@ class_name = 'ContentTab'
 class ContentTab(StandardTab):
 
     def __init__(self, mainwindow):
-        super(ContentTab, self).__init__(mainwindow)
+        super().__init__(mainwindow)
         self.tab_name = 'Content'
         self.cred_usage = 'both'
 
@@ -103,7 +103,7 @@ class ContentTab(StandardTab):
         self.listWidgetRight.params['include_connections'] = self.checkBoxIncludeConnections.isChecked()
 
     def reset_stateful_objects(self, side='both'):
-        super(ContentTab, self).reset_stateful_objects(side=side)
+        super().reset_stateful_objects(side=side)
         left = None
         right = None
         if side == 'both':

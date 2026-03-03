@@ -131,7 +131,7 @@ class SumoAdapter(Adapter):
     from logzero import logger
 
     def __init__(self, creds, side, mainwindow):
-        super(SumoAdapter, self).__init__(creds, side, mainwindow)
+        super().__init__(creds, side, mainwindow)
         self.creds = creds
         self.sumo = self.sumo_from_creds(self.creds)
         self.sumo_adapter = True
@@ -183,7 +183,7 @@ class SumoAdapter(Adapter):
 class SumoHierarchyAdapter(SumoAdapter):
 
     def __init__(self, creds, side, mainwindow):
-        super(SumoHierarchyAdapter, self).__init__(creds, side, mainwindow)
+        super().__init__(creds, side, mainwindow)
         self.current_path_id_list = []
         self.current_path_contents = {}
 
@@ -246,7 +246,7 @@ class SumoContentAdapter(SumoHierarchyAdapter):
     from modules.shared import import_content, export_content
 
     def __init__(self, creds, side, mainwindow):
-        super(SumoContentAdapter, self).__init__(creds, side, mainwindow)
+        super().__init__(creds, side, mainwindow)
         self.last_mode = ''
         self.current_path_contents = {}
 
@@ -390,7 +390,7 @@ class SumoConnectionAdapter(SumoAdapter):
     from modules.shared import import_connection, export_connection
 
     def __init__(self, creds, side, mainwindow):
-        super(SumoConnectionAdapter, self).__init__(creds, side, mainwindow)
+        super().__init__(creds, side, mainwindow)
 
     def list(self, params=None):
         self.current_path_contents = self.sumo.get_connections_sync()
@@ -459,7 +459,7 @@ class SumoUserAdapter(SumoAdapter):
     from modules.shared import import_user, export_user
 
     def __init__(self, creds, side, mainwindow):
-        super(SumoUserAdapter, self).__init__(creds, side, mainwindow)
+        super().__init__(creds, side, mainwindow)
 
     def list(self, params=None):
         users = self.sumo.get_users_sync()
@@ -519,7 +519,7 @@ class SumoRoleAdapter(SumoAdapter):
     from modules.shared import import_role, export_role
 
     def __init__(self, creds, side, mainwindow):
-        super(SumoRoleAdapter, self).__init__(creds, side, mainwindow)
+        super().__init__(creds, side, mainwindow)
 
     def list(self, params=None):
         roles = self.sumo.get_roles_sync()
@@ -574,7 +574,7 @@ class SumoFERAdapter(SumoAdapter):
     from modules.shared import import_fer, export_fer
 
     def __init__(self, creds, side, mainwindow):
-        super(SumoFERAdapter, self).__init__(creds, side, mainwindow)
+        super().__init__(creds, side, mainwindow)
 
     def list(self, params=None):
         fers = self.sumo.get_fers_sync()
@@ -629,7 +629,7 @@ class SumoScheduledViewAdapter(SumoAdapter):
     from modules.shared import import_scheduled_view, export_scheduled_view
 
     def __init__(self, creds, side, mainwindow):
-        super(SumoScheduledViewAdapter, self).__init__(creds, side, mainwindow)
+        super().__init__(creds, side, mainwindow)
 
     def list(self, params=None):
         scheduled_views = self.sumo.get_scheduled_views_sync()
@@ -688,7 +688,7 @@ class SumoMonitorAdapter(SumoHierarchyAdapter):
     from modules.shared import import_monitor, export_monitor
 
     def __init__(self, creds, side, mainwindow):
-        super(SumoMonitorAdapter, self).__init__(creds, side, mainwindow)
+        super().__init__(creds, side, mainwindow)
         self.last_mode = ''
         self.current_path_contents = {}
 
@@ -770,7 +770,7 @@ class SumoPartitionAdapter(SumoAdapter):
     from modules.shared import import_partition, export_partition
 
     def __init__(self, creds, side, mainwindow):
-        super(SumoPartitionAdapter, self).__init__(creds, side, mainwindow)
+        super().__init__(creds, side, mainwindow)
 
     def list(self, params=None):
         active_partitions = []
@@ -829,7 +829,7 @@ class SumoSAMLAdapter(SumoAdapter):
     from modules.shared import import_saml_config, export_saml_config
 
     def __init__(self, creds, side, mainwindow):
-        super(SumoSAMLAdapter, self).__init__(creds, side, mainwindow)
+        super().__init__(creds, side, mainwindow)
 
     def list(self, params=None):
         saml_configs = self.sumo.get_saml_configs()
@@ -885,7 +885,7 @@ class SumoSAMLAdapter(SumoAdapter):
 class SumoCollectorAdapter(SumoAdapter):
 
     def __init__(self, creds, side, mainwindow):
-        super(SumoCollectorAdapter, self).__init__(creds, side, mainwindow)
+        super().__init__(creds, side, mainwindow)
 
     def list(self, params=None):
         return self.sumo.get_collectors_sync()
@@ -922,7 +922,7 @@ class SumoCollectorAdapter(SumoAdapter):
 
 class SumoSourceAdapter(SumoAdapter):
     def __init__(self, creds, side, mainwindow):
-        super(SumoSourceAdapter, self).__init__(creds, side, mainwindow)
+        super().__init__(creds, side, mainwindow)
         self.sumo = self.sumo_from_creds(creds, use_session=False)
 
     def list(self, params=None):

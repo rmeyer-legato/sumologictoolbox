@@ -7,7 +7,7 @@ class_name = 'ConnectionsTab'
 class ConnectionsTab(StandardTab):
 
     def __init__(self, mainwindow):
-        super(ConnectionsTab, self).__init__(mainwindow)
+        super().__init__(mainwindow)
         self.tab_name = 'Connections'
         self.cred_usage = 'both'
 
@@ -16,7 +16,7 @@ class ConnectionsTab(StandardTab):
         self.listWidgetRight.params = {'extension': '.sumoconnection.json'}
 
     def reset_stateful_objects(self, side='both'):
-        super(ConnectionsTab, self).reset_stateful_objects(side=side)
+        super().reset_stateful_objects(side=side)
         if self.left:
             left_creds = self.mainwindow.get_current_creds('left')
             if ':' not in left_creds['service']:

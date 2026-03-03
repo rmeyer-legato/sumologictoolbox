@@ -13,7 +13,7 @@ from logzero import logger
 class PackageDeploy(QtWidgets.QDialog):
 
     def __init__(self, mainwindow):
-        super(PackageDeploy, self).__init__()
+        super().__init__()
         self.mainwindow = mainwindow
         package_deploy_ui = os.path.join(self.mainwindow.basedir, 'data/package_deploy.ui')
         uic.loadUi(package_deploy_ui, self)

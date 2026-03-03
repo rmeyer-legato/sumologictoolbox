@@ -9,7 +9,7 @@ class_name = 'MonitorsTab'
 class MonitorsTab(StandardTab):
 
     def __init__(self, mainwindow):
-        super(MonitorsTab, self).__init__(mainwindow)
+        super().__init__(mainwindow)
         self.tab_name = 'Monitors'
         self.cred_usage = 'both'
 
@@ -44,7 +44,7 @@ class MonitorsTab(StandardTab):
         ))
 
     def reset_stateful_objects(self, side='both'):
-        super(MonitorsTab, self).reset_stateful_objects(side=side)
+        super().reset_stateful_objects(side=side)
         if self.left:
             left_creds = self.mainwindow.get_current_creds('left')
             if ':' not in left_creds['service']:
@@ -61,7 +61,7 @@ class MonitorsTab(StandardTab):
                 self.right_adapter = SumoMonitorAdapter(right_creds, 'right', self.mainwindow)
 
     def load_icons(self):
-        super(MonitorsTab, self).load_icons()
+        super().load_icons()
         icon_path = str(pathlib.Path(self.mainwindow.basedir + '/data/monitor.svg'))
         self.icons['Monitor'] = QtGui.QIcon(icon_path)
 
