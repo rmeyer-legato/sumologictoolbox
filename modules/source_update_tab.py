@@ -345,6 +345,7 @@ class source_update_tab(QtWidgets.QWidget):
 
     def get_sources(self, collector_name, collector_id, creds):
         sumo = self.mainwindow.sumo_from_creds(creds)
+        sources = []
         source_dict = {}
         try:
             sources = sumo.get_sources_sync(collector_id)
