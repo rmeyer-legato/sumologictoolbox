@@ -1,43 +1,44 @@
-# -*- mode: python -*-
+# -*- mode: python ; coding: utf-8 -*-
 import PyInstaller.config
-PyInstaller.config.CONF['distpath'] = "dist\\windows"
-block_cipher = None
-
 from PyInstaller.utils.hooks import collect_all
 
+PyInstaller.config.CONF['distpath'] = "dist\\windows"
+
 datas = [
-    ( 'data/*', 'data' ),
-    ( 'qtmodern', 'qtmodern' ),
-    ( 'modules/*', 'modules' )
-    ]
+    ('data/*', 'data'),
+    ('qtmodern', 'qtmodern'),
+    ('modules/*', 'modules'),
+]
 hiddenimports = []
 binaries = []
 tmp_ret = collect_all('tzdata')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 
+a = Analysis(
+    ['sumotoolbox.py'],
+    pathex=[],
+    binaries=binaries,
+    datas=datas,
+    hiddenimports=hiddenimports,
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=[],
+    noarchive=False,
+)
+pyz = PYZ(a.pure)
 
-
-
-a = Analysis(['sumotoolbox.py'],
-             pathex=['Z:\\Projects\\PycharmProjects\\sumologictoolbox'],
-             binaries=binaries,
-             datas=datas,
-             hiddenimports=hiddenimports,
-             hookspath=None,
-             runtime_hooks=None,
-             excludes=None,
-             win_no_prefer_redirects=None,
-             win_private_assemblies=None,
-             cipher=block_cipher)
-pyz = PYZ(a.pure, a.zipped_data,
-             cipher=block_cipher)
-exe = EXE(pyz,
-          a.scripts,
-          a.binaries,
-          a.zipfiles,
-          a.datas,
-          name='sumotoolbox_windows',
-          debug=False,
-          strip=None,
-          upx=True,
-          console=True )
+exe = EXE(
+    pyz,
+    a.scripts,
+    a.binaries,
+    a.datas,
+    name='sumotoolbox_windows',
+    debug=False,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    runtime_tmpdir=None,
+    console=True,
+    disable_windowed_traceback=False,
+)
