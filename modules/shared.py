@@ -86,7 +86,7 @@ def errorbox(message):
     msgBox.setWindowTitle('Error')
     msgBox.setText(message)
     msgBox.addButton(QtWidgets.QPushButton('OK'), QtWidgets.QMessageBox.RejectRole)
-    ret = msgBox.exec_()
+    ret = msgBox.exec()
     return
 
 def infobox(message):
@@ -94,7 +94,7 @@ def infobox(message):
     msgBox.setWindowTitle('Info')
     msgBox.setText(message)
     msgBox.addButton(QtWidgets.QPushButton('OK'), QtWidgets.QMessageBox.RejectRole)
-    ret = msgBox.exec_()
+    ret = msgBox.exec()
     return
 
 def exception_and_error_handling(func):

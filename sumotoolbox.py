@@ -27,6 +27,7 @@ from logzero import logger
 from configupdater import ConfigUpdater
 import configparser
 import faulthandler
+import signal
 import qtmodern.styles
 import qtmodern.windows
 from modules.multithreading import Worker
@@ -1268,6 +1269,15 @@ def main():
     # Close the splash screen and transition to the main UI
     splash.finish(window)
     window.show()
+
+    # Allow Ctrl+C from the terminal to quit cleanly.
+    # Qt's C++ event loop blocks Python's signal handlers unless Python gets
+    # periodic CPU time — the timer provides that without doing any real work.
+    signal.signal(signal.SIGINT, lambda *_: app.quit())
+    sigint_timer = QtCore.QTimer()
+    sigint_timer.start(200)
+    sigint_timer.timeout.connect(lambda: None)
+
     sys.exit(app.exec_())
 
 if __name__ == "__main__":

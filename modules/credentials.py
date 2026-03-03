@@ -50,12 +50,11 @@ __author__ = 'Tim MacDonald'
 # A: Yes! You can turn it off in the Sumotoolbox ini file.
 
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String, LargeBinary
 import argon2
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import os
@@ -144,7 +143,6 @@ class CredentialsDB:
             length=32,
             salt=salt,
             iterations=self.iterations,
-            backend=default_backend()
         )
         # here's our encryption key
         key = kdf.derive(self.password)
@@ -176,7 +174,6 @@ class CredentialsDB:
             length=32,
             salt=salt,
             iterations=self.iterations,
-            backend=default_backend()
         )
         # here's our encryption key
         key = kdf.derive(self.password)

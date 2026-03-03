@@ -8,10 +8,7 @@ import warnings
 from logzero import logger
 import logzero
 from functools import wraps
-try:
-    import cookielib
-except ImportError:
-    import http.cookiejar as cookielib
+import http.cookiejar as cookielib
 
 
 # API RATE Limit constants
