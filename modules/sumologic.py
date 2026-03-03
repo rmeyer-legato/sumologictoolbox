@@ -768,7 +768,7 @@ class SumoLogic(object):
 
     def change_user_email(self, id, email):
         data = {'email': str(email)}
-        r = self.post('/v1/users' + str(id) + '/email/requestChange', data)
+        r = self.post('/v1/users/' + str(id) + '/email/requestChange', data)
         return r.json()
 
     def reset_user_password(self, id):
