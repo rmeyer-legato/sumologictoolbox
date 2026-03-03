@@ -265,7 +265,10 @@ class UsersTab(StandardTab):
 
     def _csv_on_error(self, error):
         _exctype, value, _tb = error
-        self._csv_failures.append(str(value))
+        msg = str(value)
+        if '409' in msg or 'already exists' in msg.lower() or 'duplicate' in msg.lower():
+            msg = f'skipped — email already exists ({msg})'
+        self._csv_failures.append(msg)
 
     def _csv_on_finished(self):
         self._csv_completed += 1
