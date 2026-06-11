@@ -1,5 +1,25 @@
 Changelog for SumoToolBox
 
+Unreleased
+
+*   [Collectors] Added defensive checks for missing collector IDs when listing sources to avoid errors from malformed or partially populated collector selections.
+*   [Users] Added bulk CSV workflows in the Users tab with import, export, and template download actions. CSV import supports flexible header names, validates required fields, and allows selecting a fallback role for unmatched role names.
+*   [Users] Improved CSV import results so duplicate-user errors are reported as skipped records instead of generic failures.
+*   [Users] Added a user deletion dialog that allows transferring a deleted user's content to another user or deleting that content during removal.
+*   [Users] Fixed the change-user-email API endpoint path.
+*   [Source Update] Fixed the undo workflow to pass the correct credentials object and improved the confirmation dialog result check.
+*   [Source Update] Prevented an UnboundLocalError when source retrieval fails before the source list is populated.
+*   [Rules] Reworked CSE rule import to use a per-rule-type field allowlist, convert windowSize from milliseconds to the required enum value (or CUSTOM for non-standard sizes), strip the chain-rule expressionsAndLimits index field, and add support for importing "first seen" rules.
+*   [General] Copy operations now surface worker-thread errors in a dialog instead of failing silently.
+*   [Log Mappings] Fixed the tab showing no mappings. The custom view now filters with the correct source:"user" query instead of the invalid isCustom:True, which was treated as a free-text search and silently returned nothing.
+*   [Log Mappings] Added a Custom/All toggle to switch between custom mappings and the full built-in mapper catalog, with a tooltip noting the longer load time for All.
+*   [Log Mappings] Moved list loading to a background thread with a progress dialog so loading the full mapper catalog no longer freezes the UI.
+*   [General] List loading errors are now surfaced in an error dialog instead of silently leaving the pane blank.
+*   [General] Updated deprecated cryptography, SQLAlchemy, and Qt APIs for current Python support and added clean Ctrl+C handling when running from a terminal.
+*   [General] Added Korea (KR) region support in the endpoint configuration.
+*   [General] Modernized class super() calls to Python 3 syntax across adapters and tabs.
+*   [Build] Removed unused dependencies, updated documentation for Python 3.12+, and standardized PyInstaller spec files while removing the obsolete alternate Mac ARM spec.
+
 08-21-2025 0.11.2
 
 *   [Source Update] Added field manipulation functionality to allow bulk adding/removing fields for sources.

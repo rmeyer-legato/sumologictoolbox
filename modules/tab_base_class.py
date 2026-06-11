@@ -1,6 +1,6 @@
 from qtpy import QtCore, QtGui, QtWidgets, uic
 from modules.multithreading import Worker, ProgressDialog
-from modules.shared import ShowTextDialog, exception_and_error_handling
+from modules.shared import ShowTextDialog, exception_and_error_handling, errorbox
 from modules.filesystem_adapter import FilesystemAdapter
 import pathlib
 import json
@@ -266,6 +266,7 @@ class BaseTab(QtWidgets.QWidget):
             list_widget.clear()
             list_widget.updated = False
             logger.exception(e)
+            errorbox(f'Failed to display the {self.tab_name} list:\n\n{str(e)}')
         return
 
     @exception_and_error_handling

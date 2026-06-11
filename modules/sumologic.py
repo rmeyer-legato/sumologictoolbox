@@ -1269,18 +1269,6 @@ class SumoLogic(object):
                 break
         return results
 
-    def get_custom_log_mappings_sync(self, limit=50):
-        query = 'isCustom:True'
-        offset = 0
-        results = []
-        while True:
-            r = self.get_log_mappings(query, limit=limit, offset=offset)
-            offset = offset + limit
-            results = results + r['data']['objects']
-            if not r['data']['hasNextPage']:
-                break
-        return results
-
     def get_log_mapping(self, item_id):
         r = self.get('/sec/v1/log-mappings/' + str(item_id))
         return r.json()
