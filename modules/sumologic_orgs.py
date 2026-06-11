@@ -15,10 +15,7 @@ import time
 from logzero import logger
 import logzero
 
-try:
-    import cookielib
-except ImportError:
-    import http.cookiejar as cookielib
+import http.cookiejar as cookielib
 
 # API RATE Limit constants
 MAX_TRIES = 10

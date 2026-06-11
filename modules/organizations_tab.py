@@ -16,7 +16,7 @@ class_name = 'OrganizationsTab'
 class CreateOrUpdateOrgDialog(QtWidgets.QDialog):
 
     def __init__(self, mainwindow, org_details=None):
-        super(CreateOrUpdateOrgDialog, self).__init__()
+        super().__init__()
         self.mainwindow = mainwindow
         self.package = None
         self.is_update = bool(org_details)
@@ -335,7 +335,7 @@ class OrganizationsTab(QtWidgets.QWidget):
 
     def __init__(self, mainwindow):
 
-        super(OrganizationsTab, self).__init__()
+        super().__init__()
         self.mainwindow = mainwindow
         self.tab_name = 'Organizations'
         self.cred_usage = 'left'

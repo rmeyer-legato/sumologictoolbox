@@ -20,7 +20,7 @@ class ItemSelector(QtWidgets.QWidget):
             self.labelExtension.setText(extension)
 
         def get_results(self):
-            if self.exec_() == QtWidgets.QDialog.Accepted:
+            if self.exec() == QtWidgets.QDialog.Accepted:
                 # get all values
                 val = self.lineEditName.text()
                 return val

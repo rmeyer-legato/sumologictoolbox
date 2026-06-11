@@ -10,7 +10,7 @@ from logzero import logger
 class PackageEditor(QtWidgets.QDialog):
 
     def __init__(self, mainwindow):
-        super(PackageEditor, self).__init__()
+        super().__init__()
         self.mainwindow = mainwindow
         package_editor_ui = os.path.join(self.mainwindow.basedir, 'data/package_editor.ui')
         uic.loadUi(package_editor_ui, self)

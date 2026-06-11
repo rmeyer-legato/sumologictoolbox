@@ -32,45 +32,45 @@ your old one, leaving your ini and db file in place.
 Installing the Source
 =====================
 
-If you prefer to clone the archive and run from source then you'll need Python 3.6 or higher and the modules listed 
-in the dependency section.  
+If you prefer to clone the archive and run from source then you'll need Python 3.12 or higher and the modules listed
+in the dependency section.
 
-The steps are as follows: 
+The steps are as follows:
 
-    1. Download and install python 3.6, 3.7, 3.8 from python.org.  
-       Make sure to choose the "add python to the default "path" checkbox in the installer (may be in 
+    1. Download and install Python 3.12 or higher from python.org.
+       Make sure to choose the "add python to the default path" checkbox in the installer (may be in
        advanced settings.)
 
-       Note: If you have Linux you can usually skip this step, but ensure you have python3 installed for your distro. 
+       Note: If you have Linux you can usually skip this step, but ensure you have python3 installed for your distro.
 
-       Note: If you have OS X you cannot use the python that comes with the OS, it is too old.
+       Note: If you have macOS, the system Python is too old. Install Python 3.12+ from python.org or via Homebrew.
 
     2. Download and install git for your platform if you don't already have it installed.
        It can be downloaded from https://git-scm.com/downloads
-    
-    3. Open a new shell/command prompt. It must be new since only a new shell will include the new python 
+
+    3. Open a new shell/command prompt. It must be new since only a new shell will include the new python
        path that was created in step 1. Cd to the folder where you want to install sumotoolbox.
-    
-    4. Execute the following command to install pipenv, which will manage all of the library dependencies 
+
+    4. Execute the following command to install pipenv, which will manage all of the library dependencies
        for us:
 
         pip3 install pipenv
-    
+
         -or-
-    
-        sudo pip3 install pipenv 
- 
+
+        sudo pip3 install pipenv
+
     5. Clone this repo using the following command:
-    
+
         git clone https://github.com/SumoLogic/sumologictoolbox.git
-    
-    This will create a new folder called sumotoolbox. 
-    
-    6. Change into the sumotoolbox folder. Type the following to install all the package 
+
+    This will create a new folder called sumotoolbox.
+
+    6. Change into the sumotoolbox folder. Type the following to install all the package
        dependencies (this may take a while as this will download all of the libraries that sumotoolbox uses):
 
     pipenv install
-    
+
 To run sumotoolbox cd into the sumotoolbox directory and type:
 
     pipenv run python3 sumotoolbox.py
@@ -78,15 +78,14 @@ To run sumotoolbox cd into the sumotoolbox directory and type:
 Build the Source
 =====================
 ```sh
-pipenv install --python 3.8
+pipenv install --dev --python 3.12
 pipenv shell
-
-pip install pyinstaller=5.1
-pip install dateutils
-pip install backports.zoneinfo
 
 pyinstaller sumotoolbox_onefile_mac_arm.spec
 ```
+
+Note: `pyinstaller` and `macholib` are dev dependencies in the Pipfile and are installed by `pipenv install --dev`.
+No additional pip installs are needed.
 
 Updating the Source
 ===================
@@ -96,7 +95,7 @@ When it's time to upgrade to a new version of sumotoolbox cd into the sumotoolbo
     1. git pull https://github.com/SumoLogic/sumologictoolbox.git
     
     2. pipenv install
-    
+
 To run sumotoolbox cd into the sumotoolbox directory and type:
 
     pipenv run python3 sumotoolbox.py
@@ -104,7 +103,8 @@ To run sumotoolbox cd into the sumotoolbox directory and type:
 Dependencies
 ============
 
-See the contents of "pipfile"
+See the contents of `Pipfile`. Runtime dependencies are listed under `[packages]`; build-only tools
+(`pyinstaller`, `macholib`) are under `[dev-packages]` and only needed when building a binary.
 
   
 

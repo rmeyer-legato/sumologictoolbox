@@ -8,14 +8,14 @@ class_name = 'FieldExtractionRuleTab'
 class FieldExtractionRuleTab(StandardTab):
 
     def __init__(self, mainwindow):
-        super(FieldExtractionRuleTab, self).__init__(mainwindow)
+        super().__init__(mainwindow)
         self.tab_name = 'Field Extraction Rules'
         self.cred_usage = 'both'
         self.listWidgetLeft.params = {'extension': '.sumofer.json'}
         self.listWidgetRight.params = {'extension': '.sumofer.json'}
 
     def reset_stateful_objects(self, side='both'):
-        super(FieldExtractionRuleTab, self).reset_stateful_objects(side=side)
+        super().reset_stateful_objects(side=side)
         if self.left:
             left_creds = self.mainwindow.get_current_creds('left')
             if ':' not in left_creds['service']:

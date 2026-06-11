@@ -8,7 +8,7 @@ import os
 class ProgressDialog(QtWidgets.QDialog):
 
     def __init__(self, text, minimum, maximum, threadpool, mainwindow):
-        super(ProgressDialog, self).__init__()
+        super().__init__()
         self.setModal(True)
         self.threadpool = threadpool
         self.min = minimum
@@ -41,7 +41,7 @@ class ProgressDialog(QtWidgets.QDialog):
 class SearchProgressDialog(QtWidgets.QDialog):
 
     def __init__(self, text, minimum, maximum, threadpool, mainwindow):
-        super(SearchProgressDialog, self).__init__()
+        super().__init__()
         self.setModal(True)
         self.threadpool = threadpool
         self.min = minimum
@@ -94,7 +94,7 @@ class Worker(QtCore.QRunnable):
     '''
 
     def __init__(self, fn, *args, **kwargs):
-        super(Worker, self).__init__()
+        super().__init__()
 
         # Store constructor arguments (re-used for processing)
         self.fn = fn

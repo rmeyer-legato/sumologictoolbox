@@ -13,7 +13,7 @@ class_name = 'source_update_tab'
 class AddFieldDialog(QtWidgets.QDialog):
 
     def __init__(self):
-        super(AddFieldDialog, self).__init__()
+        super().__init__()
         self.setupUi(self)
 
     def setupUi(self, Dialog):
@@ -70,7 +70,7 @@ class AddFieldDialog(QtWidgets.QDialog):
 class RemoveFieldDialog(QtWidgets.QDialog):
 
     def __init__(self, potential_field_names_for_removal):
-        super(RemoveFieldDialog, self).__init__()
+        super().__init__()
         self.potential_field_names_for_removal = potential_field_names_for_removal
         self.setupUi(self)
 
@@ -109,7 +109,7 @@ class RemoveFieldDialog(QtWidgets.QDialog):
 class AddProcessingRuleDialog(QtWidgets.QDialog):
 
     def __init__(self):
-        super(AddProcessingRuleDialog, self).__init__()
+        super().__init__()
         self.rule_types = [ 'Include', 'Exclude', 'Hash', 'Mask']
         self.setupUi(self)
 
@@ -202,7 +202,7 @@ class AddProcessingRuleDialog(QtWidgets.QDialog):
 class RemoveProcessingRuleDialog(QtWidgets.QDialog):
 
     def __init__(self, potential_rule_names_for_removal):
-        super(RemoveProcessingRuleDialog, self).__init__()
+        super().__init__()
         self.potential_rule_names_for_removal = potential_rule_names_for_removal
         self.setupUi(self)
 
@@ -243,7 +243,7 @@ class source_update_tab(QtWidgets.QWidget):
 
     def __init__(self, mainwindow):
 
-        super(source_update_tab, self).__init__()
+        super().__init__()
         self.mainwindow = mainwindow
         self.tab_name = 'Source Update'
         self.cred_usage = 'left'
@@ -345,6 +345,7 @@ class source_update_tab(QtWidgets.QWidget):
 
     def get_sources(self, collector_name, collector_id, creds):
         sumo = self.mainwindow.sumo_from_creds(creds)
+        sources = []
         source_dict = {}
         try:
             sources = sumo.get_sources_sync(collector_id)
@@ -672,7 +673,7 @@ class source_update_tab(QtWidgets.QWidget):
             self.mainwindow.threadpool.clear()
             logger.info(result['exception'])
             self.mainwindow.errorbox('Something went wrong, rolling back changes:\n\n' + result['exception'])
-            self.undo_updates(result['id'], result['key'], result['url'])
+            self.undo_updates(result['creds'])
         if self.num_successful_updates == self.num_source_updates:
             self.mainwindow.infobox('Your update completed successfully.')
             self.pushButtonUndoChanges.setEnabled(True)
@@ -696,7 +697,7 @@ class source_update_tab(QtWidgets.QWidget):
                                                         'Are you sure you want to apply these updates?',
                                                         QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                                                         QtWidgets.QMessageBox.No)
-                if result:
+                if result == QtWidgets.QMessageBox.Yes:
                     self.undolist = []
                     try:
                         self.num_successful_updates = 0

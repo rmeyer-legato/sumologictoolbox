@@ -63,13 +63,12 @@ __author__ = 'Tim MacDonald'
 # A: Yes! You can turn it off in the Sumologictoolbox ini file.
 
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String, LargeBinary
 import argon2
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import os
 import base64
@@ -156,7 +155,6 @@ class CredentialsDB:
             length=32,
             salt=salt,
             iterations=self.iterations,
-            backend=default_backend()
         )
         encoded_hash = base64.urlsafe_b64encode(kdf.derive(self.password))
         cipher = Fernet(encoded_hash)
@@ -184,7 +182,6 @@ class CredentialsDB:
             length=32,
             salt=salt,
             iterations=self.iterations,
-            backend=default_backend()
         )
         encoded_hash = base64.urlsafe_b64encode(kdf.derive(self.password))
         cipher = Fernet(encoded_hash)

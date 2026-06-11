@@ -1,35 +1,36 @@
-# -*- mode: python -*-
+# -*- mode: python ; coding: utf-8 -*-
 import PyInstaller.config
+
 PyInstaller.config.CONF['distpath'] = "./dist/linux"
 
-block_cipher = None
+a = Analysis(
+    ['sumotoolbox.py'],
+    pathex=[],
+    binaries=[],
+    datas=[
+        ('data/*', 'data'),
+        ('qtmodern', 'qtmodern'),
+        ('modules/*', 'modules'),
+    ],
+    hiddenimports=[],
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=[],
+    noarchive=False,
+)
+pyz = PYZ(a.pure)
 
-added_files = [
-    ( 'data/*', 'data' ),
-    ( 'qtmodern', 'qtmodern' ),
-    ( 'modules/*', 'modules' )
-    ]
-
-a = Analysis(['sumotoolbox.py'],
-             pathex=['/netstuff/projects/PycharmProjects/sumologictoolbox'],
-             binaries=None,
-             datas=added_files,
-             hiddenimports=[],
-             hookspath=None,
-             runtime_hooks=None,
-             excludes=None,
-             win_no_prefer_redirects=None,
-             win_private_assemblies=None,
-             cipher=block_cipher)
-pyz = PYZ(a.pure, a.zipped_data,
-             cipher=block_cipher)
-exe = EXE(pyz,
-          a.scripts,
-          a.binaries,
-          a.zipfiles,
-          a.datas,
-          name='sumotoolbox_linux',
-          debug=False,
-          strip=None,
-          upx=True,
-          console=False )
+exe = EXE(
+    pyz,
+    a.scripts,
+    a.binaries,
+    a.datas,
+    name='sumotoolbox_linux',
+    debug=False,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    runtime_tmpdir=None,
+    console=False,
+)

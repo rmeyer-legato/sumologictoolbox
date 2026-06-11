@@ -8,10 +8,7 @@ import warnings
 from logzero import logger
 import logzero
 from functools import wraps
-try:
-    import cookielib
-except ImportError:
-    import http.cookiejar as cookielib
+import http.cookiejar as cookielib
 
 
 # API RATE Limit constants
@@ -761,8 +758,10 @@ class SumoLogic(object):
         r = self.update_user(user_id, data)
         return r
 
-    def delete_user(self, user_id, transferTo=None):
-        if transferTo:
+    def delete_user(self, user_id, transferTo=None, deleteContent=False):
+        if deleteContent:
+            params = {'deleteContent': 'true'}
+        elif transferTo:
             params = {'transferTo': str(transferTo)}
         else:
             params = None
@@ -771,7 +770,7 @@ class SumoLogic(object):
 
     def change_user_email(self, id, email):
         data = {'email': str(email)}
-        r = self.post('/v1/users' + str(id) + '/email/requestChange', data)
+        r = self.post('/v1/users/' + str(id) + '/email/requestChange', data)
         return r.json()
 
     def reset_user_password(self, id):
@@ -1203,6 +1202,10 @@ class SumoLogic(object):
         r = self.post('/sec/v1/rules/threshold', item)
         return r.json()
 
+    def create_first_seen_rule(self, item):
+        r = self.post('/sec/v1/rules/first-seen', item)
+        return r.json()
+
     # Cloud SIEM Custom Insights
     def get_custom_insights(self, limit=50, offset=0):
         params = {'limit': int(limit),
@@ -1256,18 +1259,6 @@ class SumoLogic(object):
         return r.json()
 
     def get_log_mappings_sync(self, query, limit=50):
-        offset = 0
-        results = []
-        while True:
-            r = self.get_log_mappings(query, limit=limit, offset=offset)
-            offset = offset + limit
-            results = results + r['data']['objects']
-            if not r['data']['hasNextPage']:
-                break
-        return results
-
-    def get_custom_log_mappings_sync(self, limit=50):
-        query = 'isCustom:True'
         offset = 0
         results = []
         while True:
