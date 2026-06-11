@@ -15,6 +15,7 @@ Unreleased
 *   [Log Mappings] Added a Custom/All toggle to switch between custom mappings and the full built-in mapper catalog, with a tooltip noting the longer load time for All.
 *   [Log Mappings] Moved list loading to a background thread with a progress dialog so loading the full mapper catalog no longer freezes the UI.
 *   [General] List loading errors are now surfaced in an error dialog instead of silently leaving the pane blank.
+*   [Docs] Added a modified-fork notice to the README documenting that files have been changed from the original work, per Apache License 2.0 section 4(b).
 *   [General] Updated deprecated cryptography, SQLAlchemy, and Qt APIs for current Python support and added clean Ctrl+C handling when running from a terminal.
 *   [General] Added Korea (KR) region support in the endpoint configuration.
 *   [General] Modernized class super() calls to Python 3 syntax across adapters and tabs.

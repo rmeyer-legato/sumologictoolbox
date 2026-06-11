@@ -114,6 +114,10 @@ License
 
 Copyright 2015 Timothy MacDonald
 
+This repository is a modified fork of the original project. The files in this
+distribution have been changed from the original work; all modifications are
+documented in changelog.txt.
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
