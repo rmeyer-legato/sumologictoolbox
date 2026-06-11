@@ -352,9 +352,16 @@ class BaseTab(QtWidgets.QWidget):
                                        ))
             self.workers[index].signals.finished.connect(self.export_progress.increment)
             self.workers[index].signals.result.connect(self.merge_begin_copy_results)
+            self.workers[index].signals.error.connect(self.handle_worker_error)
             self.mainwindow.threadpool.start(self.workers[index])
 
         return
+
+    def handle_worker_error(self, error_tuple):
+        exctype, value, tb_str = error_tuple
+        self.mainwindow.threadpool.clear()
+        logger.info(f"Worker error: {tb_str}")
+        self.mainwindow.errorbox(f'Something went wrong:\n\n{exctype.__name__}: {value}')
 
     def merge_begin_copy_results(self, result):
         if result['status'] == 'SUCCESS':
@@ -387,6 +394,7 @@ class BaseTab(QtWidgets.QWidget):
                                                ))
                     self.workers[index].signals.finished.connect(self.import_progress.increment)
                     self.workers[index].signals.result.connect(self.merge_results_update_target)
+                    self.workers[index].signals.error.connect(self.handle_worker_error)
                     self.mainwindow.threadpool.start(self.workers[index])
 
     def merge_results_update_target(self, result):

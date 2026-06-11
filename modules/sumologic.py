@@ -1202,6 +1202,10 @@ class SumoLogic(object):
         r = self.post('/sec/v1/rules/threshold', item)
         return r.json()
 
+    def create_first_seen_rule(self, item):
+        r = self.post('/sec/v1/rules/first-seen', item)
+        return r.json()
+
     # Cloud SIEM Custom Insights
     def get_custom_insights(self, limit=50, offset=0):
         params = {'limit': int(limit),

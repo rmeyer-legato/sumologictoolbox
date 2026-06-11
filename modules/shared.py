@@ -278,22 +278,67 @@ def export_rule(self, item_id, sumo):
 
 
 def import_rule(self, item, sumo):
-    def remove_json_keys(json):
-        # all of the following keys are part of the rule export but will cause the import to fail
-        remove_keys = ['created', 'createdBy', 'contentType', 'deleted', 'id', 'lastUpdated', 'lastUpdatedBy', 'ruleId',
-                       'ruleSource', 'ruleType', 'signalCount07d', 'signalCount24h', 'status',
-                       'descriptionExpressionOverride', 'entitySelectorsOverride', 'nameExpressionOverride',
-                       'scoreMappingOverride', 'summaryExpressionOverride', 'hasOverride', 'nameOverride',
-                       'isPrototypeOverride', 'tagsOverride']
-        for remove_key in remove_keys:
-            if remove_key in json:
-                del json[remove_key]
-        return {'fields': json}
+    # GET response returns windowSize as int (ms); CREATE requires a string enum.
+    # Standard sizes map 1:1; anything else uses "CUSTOM" + windowSizeMilliseconds (plain string).
+    WINDOW_SIZE_MAP = {
+        300000:    'T05M',
+        600000:    'T10M',
+        1800000:   'T30M',
+        3600000:   'T60M',
+        43200000:  'T12H',
+        86400000:  'T24H',
+        432000000: 'T05D',
+    }
+
+    # Allowlists derived from CSE API spec required/optional fields for each rule type.
+    # tuningExpressionIds excluded — IDs are org-specific and won't transfer.
+    _COMMON = {'assetField', 'category', 'enabled', 'entitySelectors', 'isPrototype', 'name',
+               'parentJaskId', 'summaryExpression', 'suppressionWindowSize', 'tags'}
+    ALLOWED_FIELDS = {
+        'aggregation':    _COMMON | {'aggregationFunctions', 'descriptionExpression', 'groupByAsset',
+                                     'groupByFields', 'matchExpression', 'nameExpression', 'scoreMapping',
+                                     'stream', 'triggerExpression', 'windowSize'},
+        'templated match': _COMMON | {'descriptionExpression', 'expression', 'nameExpression',
+                                      'scoreMapping', 'stream'},
+        'match':          _COMMON | {'description', 'expression', 'score', 'stream'},
+        'threshold':      _COMMON | {'description', 'countDistinct', 'countField', 'expression',
+                                     'groupByFields', 'limit', 'score', 'stream', 'version', 'windowSize'},
+        'chain':          _COMMON | {'description', 'expressionsAndLimits', 'groupByFields', 'ordered',
+                                     'score', 'stream', 'windowSize'},
+        'first seen':     _COMMON | {'descriptionExpression', 'nameExpression', 'filterExpression',
+                                     'valueFields', 'valueExpression', 'groupByFields', 'score',
+                                     'version', 'baselineWindowSize', 'retentionWindowSize', 'baselineType'},
+    }
 
     rule_type = item['ruleType']
-    rule = remove_json_keys(item)
-    if rule['fields']['scoreMapping']['mapping'] is None:
-        rule['fields']['scoreMapping']['mapping'] = []
+    allowed = ALLOWED_FIELDS.get(rule_type, _COMMON)
+    fields = {k: v for k, v in item.items() if k in allowed}
+
+    # windowSize is required for aggregation/threshold/chain rules.
+    # GET returns it as int (ms); map to enum string, or CUSTOM + windowSizeMilliseconds for non-standard sizes.
+    if 'windowSize' in fields and isinstance(fields['windowSize'], int):
+        int_ms = fields['windowSize']
+        enum_val = WINDOW_SIZE_MAP.get(int_ms)
+        if enum_val:
+            fields['windowSize'] = enum_val
+        else:
+            fields['windowSize'] = 'CUSTOM'
+            fields['windowSizeMilliseconds'] = str(int_ms)
+
+    # Chain rules: GET response includes an 'index' field in each expressionsAndLimits item
+    # that the CREATE endpoint rejects as an unknown field — strip it.
+    if rule_type == 'chain' and 'expressionsAndLimits' in fields:
+        fields['expressionsAndLimits'] = [
+            {k: v for k, v in item.items() if k in ('expression', 'limit')}
+            for item in fields['expressionsAndLimits']
+        ]
+
+    rule = {'fields': fields}
+    score_mapping = fields.get('scoreMapping')
+    if score_mapping and score_mapping.get('mapping') is None:
+        fields['scoreMapping']['mapping'] = []
+
+    result = None
     if rule_type == 'templated match':
         result = sumo.create_templated_match_rule(rule)
     elif rule_type == 'match':
@@ -304,6 +349,8 @@ def import_rule(self, item, sumo):
         result = sumo.create_threshold_rule(rule)
     elif rule_type == 'aggregation':
         result = sumo.create_aggregation_rule(rule)
+    elif rule_type == 'first seen':
+        result = sumo.create_first_seen_rule(rule)
     return result
 
 
